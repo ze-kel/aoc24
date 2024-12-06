@@ -109,7 +109,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let binding = map.find('^');
     let start_pos = binding.get(0).unwrap();
 
-    let mut start_pos = Guard {
+    let start_pos = Guard {
         x: start_pos.x,
         y: start_pos.y,
         direction: Direction::UP,

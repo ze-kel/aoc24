@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use rayon::vec;
-
 pub mod template;
 
 // Use this file to add helper functions and additional modules.
