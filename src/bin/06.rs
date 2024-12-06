@@ -1,11 +1,11 @@
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::collections::HashSet;
 
-use advent_of_code::{find_char_coords, get_char_at_coord, Coords};
-use rayon::iter::Positions;
+use advent_of_code::{CoordMap, Coords};
 
 advent_of_code::solution!(6);
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq)]
 enum Direction {
     UP,
     DOWN,
@@ -13,29 +13,35 @@ enum Direction {
     RIGHT,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq)]
 struct Guard {
     x: i32,
     y: i32,
     direction: Direction,
 }
 
-fn simulate(input: &str, current_pos: &mut Guard) -> (HashSet<String>, HashSet<String>) {
-    let mut visited_count: HashSet<String> = HashSet::new();
-    let mut visited_directional: HashSet<String> = HashSet::new();
+enum SimulationResult {
+    Exit,
+    Loop,
+}
+
+fn simulate(
+    input: &CoordMap,
+    current_pos: &mut Guard,
+) -> (HashSet<Coords>, HashSet<Guard>, SimulationResult) {
+    let mut visited_count: HashSet<Coords> = HashSet::new();
+    let mut visited_directional: HashSet<Guard> = HashSet::new();
 
     loop {
-        let id = format!(
-            "{}_{}_{:?}",
-            current_pos.x, current_pos.y, current_pos.direction
-        );
-        let id_short = format!("{}_{}", current_pos.x, current_pos.y,);
-        if visited_directional.contains(&id) {
-            break;
+        if visited_directional.contains(&current_pos) {
+            return (visited_count, visited_directional, SimulationResult::Loop);
         }
 
-        visited_directional.insert(id);
-        visited_count.insert(id_short);
+        visited_directional.insert(current_pos.clone());
+        visited_count.insert(Coords {
+            x: current_pos.x,
+            y: current_pos.y,
+        });
 
         let in_front = match current_pos.direction {
             Direction::UP => &Coords {
@@ -56,13 +62,13 @@ fn simulate(input: &str, current_pos: &mut Guard) -> (HashSet<String>, HashSet<S
             },
         };
 
-        let cc = get_char_at_coord(input, in_front, false);
+        let cc = input.get(in_front);
 
         if cc.is_none() {
-            break;
+            return (visited_count, visited_directional, SimulationResult::Exit);
         }
 
-        if cc.unwrap() == '#' {
+        if cc.unwrap().clone() == '#' {
             current_pos.direction = match current_pos.direction {
                 Direction::UP => Direction::RIGHT,
                 Direction::DOWN => Direction::LEFT,
@@ -79,11 +85,12 @@ fn simulate(input: &str, current_pos: &mut Guard) -> (HashSet<String>, HashSet<S
             }
         }
     }
-    return (visited_count, visited_directional);
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let binding = find_char_coords(input, '^');
+    let map = CoordMap::new(input);
+
+    let binding = map.find('^');
     let start_pos = binding.get(0).unwrap();
 
     let mut current_pos = Guard {
@@ -92,30 +99,50 @@ pub fn part_one(input: &str) -> Option<u32> {
         direction: Direction::UP,
     };
 
-    let (visited_count, visited_directional) = simulate(input, &mut current_pos);
+    let (visited_count, _, _) = simulate(&map, &mut current_pos);
 
     Some(visited_count.len().try_into().unwrap())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let binding = find_char_coords(input, '^');
+    let map = CoordMap::new(input);
+    let binding = map.find('^');
     let start_pos = binding.get(0).unwrap();
 
-    let mut current_pos = Guard {
+    let mut start_pos = Guard {
         x: start_pos.x,
         y: start_pos.y,
         direction: Direction::UP,
     };
 
-    let (mut visited_count, initial_directional) = simulate(input, &mut current_pos);
+    let (mut visited_count, _, _) = simulate(&map, &mut start_pos.clone());
 
     // manual remove first points
-    let f1 = format!("{}_{}", start_pos.x, start_pos.y);
-    visited_count.remove(&f1);
-    let f2 = format!("{}_{}", start_pos.x, start_pos.y - 1);
-    visited_count.remove(&f2);
+    visited_count.remove(&Coords {
+        x: start_pos.x,
+        y: start_pos.y,
+    });
+    visited_count.remove(&Coords {
+        x: start_pos.x,
+        y: start_pos.y - 1,
+    });
 
-    None
+    let cnt = visited_count
+        .par_iter()
+        .map(|cc| {
+            let mut updated_map = map.clone();
+            updated_map.set(&cc, '#');
+
+            let (_, _, res) = simulate(&updated_map, &mut start_pos.clone());
+
+            return match res {
+                SimulationResult::Exit => 0,
+                SimulationResult::Loop => 1,
+            };
+        })
+        .sum();
+
+    Some(cnt)
 }
 
 #[cfg(test)]
@@ -131,6 +158,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(6));
     }
 }

@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use rayon::vec;
+
 pub mod template;
 
 // Use this file to add helper functions and additional modules.
@@ -64,16 +66,20 @@ pub fn get_char_at_coord(text: &str, cord: &Coords, wrapping: bool) -> Option<ch
     return Some(char);
 }
 
+#[derive(Clone, Debug)]
 pub struct CoordMap {
     map: HashMap<Coords, char>,
 }
 
 impl CoordMap {
-    pub fn new(&mut self, input: &str) -> &CoordMap {
+    pub fn new(input: &str) -> CoordMap {
+        let mut c = CoordMap {
+            map: HashMap::new(),
+        };
         for (y, line) in input.lines().enumerate() {
             for (x, char) in line.chars().enumerate() {
-                self.set(
-                    Coords {
+                c.set(
+                    &Coords {
                         x: x.try_into().unwrap(),
                         y: y.try_into().unwrap(),
                     },
@@ -81,13 +87,22 @@ impl CoordMap {
                 );
             }
         }
-        self
+        return c;
     }
-    pub fn set(&mut self, k: Coords, v: char) {
-        self.map.insert(k, v);
+    pub fn set(&mut self, k: &Coords, v: char) {
+        self.map.insert(k.clone(), v);
     }
 
-    pub fn get(&mut self, k: Coords) -> Option<&char> {
-        self.map.get(&k)
+    pub fn get(&self, k: &Coords) -> Option<&char> {
+        self.map.get(k)
+    }
+
+    pub fn find(&self, cc: char) -> Vec<&Coords> {
+        return self
+            .map
+            .iter()
+            .filter(|(_, v)| **v == cc)
+            .map(|(k, _)| k)
+            .collect();
     }
 }
