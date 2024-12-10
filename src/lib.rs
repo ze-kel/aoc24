@@ -120,7 +120,7 @@ impl CoordMap {
         self.map.get(k)
     }
 
-    pub fn find(&self, cc: char) -> Vec<&Coords> {
+    pub fn find_char(&self, cc: char) -> Vec<&Coords> {
         return self
             .map
             .iter()
@@ -142,5 +142,18 @@ impl CoordMap {
             print!("\n");
         }
         print!("\n");
+    }
+
+    pub fn get_adjacent_xy(&self, c: &Coords) -> Vec<Coords> {
+        vec![
+            Coords { x: c.x + 1, y: c.y },
+            Coords { x: c.x - 1, y: c.y },
+            Coords { x: c.x, y: c.y + 1 },
+            Coords { x: c.x, y: c.y - 1 },
+        ]
+    }
+
+    pub fn coord_exists(&self, c: &Coords) -> bool {
+        self.get(c).is_some()
     }
 }

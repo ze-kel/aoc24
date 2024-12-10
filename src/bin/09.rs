@@ -128,22 +128,21 @@ fn checksum(row: &Vec<TakenSpace>) -> i64 {
     acc
 }
 
+#[allow(dead_code)]
 fn row_viz(row: &Vec<TakenSpace>) {
     for item in row {
         match item {
             TakenSpace::Empty(nnn) => {
-                for i in 0..nnn.places {
+                for _ in 0..nnn.places {
                     print!(".",);
                 }
             }
             TakenSpace::Number(nnn) => {
-                for i in 0..nnn.places {
+                for _ in 0..nnn.places {
                     print!("{}", nnn.id);
                 }
             }
         }
-
-        if let TakenSpace::Number(nnn) = item {}
     }
 }
 
@@ -166,7 +165,7 @@ fn shift_row_p2(row: &mut Vec<TakenSpace>) {
             let end_item = row[pointer_end];
 
             match (start_item, end_item) {
-                (TakenSpace::Empty(mut space_empty), TakenSpace::Number(mut space_number)) => {
+                (TakenSpace::Empty(mut space_empty), TakenSpace::Number(space_number)) => {
                     if space_empty.places == space_number.places {
                         row[pointer_start] = end_item.clone();
                         row[pointer_end] = TakenSpace::Empty(Space {
