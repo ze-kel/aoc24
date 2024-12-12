@@ -153,6 +153,27 @@ impl CoordMap {
         ]
     }
 
+    pub fn get_adjacent_diag(&self, c: &Coords) -> Vec<Coords> {
+        vec![
+            Coords {
+                x: c.x + 1,
+                y: c.y + 1,
+            },
+            Coords {
+                x: c.x + 1,
+                y: c.y - 1,
+            },
+            Coords {
+                x: c.x - 1,
+                y: c.y + 1,
+            },
+            Coords {
+                x: c.x - 1,
+                y: c.y - 1,
+            },
+        ]
+    }
+
     pub fn coord_exists(&self, c: &Coords) -> bool {
         self.get(c).is_some()
     }
