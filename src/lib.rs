@@ -1,8 +1,21 @@
 use std::collections::{hash_map::Iter, HashMap};
 
+use regex::Regex;
+
 pub mod template;
 
 // Use this file to add helper functions and additional modules.
+
+pub fn extract_numbers(text: &str) -> Vec<f64> {
+    let re = Regex::new(r"-?\d+(?:\.\d+)?").unwrap();
+
+    let n: Vec<f64> = re
+        .find_iter(text)
+        .filter_map(|m| m.as_str().parse::<f64>().ok())
+        .collect();
+
+    return n;
+}
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
 pub struct Coords {
@@ -142,6 +155,28 @@ impl CoordMap {
             print!("\n");
         }
         print!("\n");
+    }
+
+    pub fn viz_to_string(
+        &self,
+        min_x: i32,
+        min_y: i32,
+        max_x: i32,
+        max_y: i32,
+        empty: &char,
+    ) -> String {
+        let mut str = "".to_owned();
+
+        str += "\n";
+        for y in min_y..max_y {
+            for x in min_x..max_x {
+                str += &format!("{}", self.get(&Coords { x: x, y: y }).unwrap_or(empty));
+            }
+            str += "\n";
+        }
+        str += "\n";
+
+        return str;
     }
 
     pub fn get_adjacent_xy(&self, c: &Coords) -> Vec<Coords> {
