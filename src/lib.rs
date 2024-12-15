@@ -102,12 +102,18 @@ pub fn get_char_at_coord(text: &str, cord: &Coords, wrapping: bool) -> Option<ch
 #[derive(Clone, Debug)]
 pub struct CoordMap {
     map: HashMap<Coords, char>,
+
+    x_len: i32,
+    y_len: i32,
 }
 
 impl CoordMap {
     pub fn new(input: &str) -> CoordMap {
+        let lines: Vec<&str> = input.lines().collect();
         let mut c = CoordMap {
             map: HashMap::new(),
+            y_len: lines.len() as i32,
+            x_len: lines[0].len() as i32,
         };
         if input.is_empty() {
             return c;
@@ -146,18 +152,7 @@ impl CoordMap {
         return self.map.iter();
     }
 
-    pub fn viz(&self, min_x: i32, min_y: i32, max_x: i32, max_y: i32, empty: &char) {
-        print!("\n");
-        for y in min_y..max_y {
-            for x in min_x..max_x {
-                print!("{}", self.get(&Coords { x: x, y: y }).unwrap_or(empty))
-            }
-            print!("\n");
-        }
-        print!("\n");
-    }
-
-    pub fn viz_to_string(
+    pub fn viz_to_string_raw(
         &self,
         min_x: i32,
         min_y: i32,
@@ -177,6 +172,21 @@ impl CoordMap {
         str += "\n";
 
         return str;
+    }
+
+    pub fn viz_raw(&self, min_x: i32, min_y: i32, max_x: i32, max_y: i32, empty: &char) {
+        print!(
+            "{}",
+            self.viz_to_string_raw(min_x, min_y, max_x, max_y, empty)
+        );
+    }
+
+    pub fn viz(&self, empty: &char) {
+        print!("{}", self.viz_to_string(empty));
+    }
+
+    pub fn viz_to_string(&self, empty: &char) -> String {
+        return self.viz_to_string_raw(0, 0, self.x_len, self.y_len, empty);
     }
 
     pub fn get_adjacent_xy(&self, c: &Coords) -> Vec<Coords> {

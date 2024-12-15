@@ -130,7 +130,7 @@ pub fn part_two(input: &str) -> Option<u32> {
                 map.set(&Coords { x: r.x, y: r.y }, 'R');
             }
 
-            let v = map.viz_to_string(0, 0, max_x, max_y, &'.');
+            let v = map.viz_to_string_raw(0, 0, max_x, max_y, &'.');
 
             vizes.extend(vec!["".to_owned(), i.to_string(), v]);
         }
