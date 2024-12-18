@@ -124,7 +124,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         let percent_symm = x_symm_coeff as f64 / (robots.len() as f64);
 
         if percent_symm > 0.2 {
-            let mut map = CoordMap::new("");
+            let mut map = CoordMap::new_from_map("");
 
             for r in moved {
                 map.set(&Coords { x: r.x, y: r.y }, 'R');

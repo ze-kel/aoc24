@@ -6,6 +6,23 @@ pub mod template;
 
 // Use this file to add helper functions and additional modules.
 
+fn divide_range(start: i64, end: i64, n: i64) -> Vec<(i64, i64)> {
+    if n <= 0 {
+        return vec![];
+    }
+
+    let range_size = (end - start) as f64;
+    let chunk_size = (range_size / n as f64).ceil() as i64;
+
+    (0..n)
+        .map(|i| {
+            let chunk_start = start + (i * chunk_size);
+            let chunk_end = (start + ((i + 1) * chunk_size)).min(end);
+            (chunk_start, chunk_end)
+        })
+        .collect()
+}
+
 pub fn extract_numbers(text: &str) -> Vec<f64> {
     let re = Regex::new(r"-?\d+(?:\.\d+)?").unwrap();
 
@@ -108,7 +125,23 @@ pub struct CoordMap {
 }
 
 impl CoordMap {
-    pub fn new(input: &str) -> CoordMap {
+    pub fn new_max(x_max: i32, y_max: i32) -> CoordMap {
+        return CoordMap {
+            map: HashMap::new(),
+            y_len: y_max + 1,
+            x_len: x_max + 1,
+        };
+    }
+
+    pub fn new_len(x_len: i32, y_len: i32) -> CoordMap {
+        return CoordMap {
+            map: HashMap::new(),
+            y_len: y_len,
+            x_len: x_len,
+        };
+    }
+
+    pub fn new_from_map(input: &str) -> CoordMap {
         let lines: Vec<&str> = input.lines().collect();
         let mut c = CoordMap {
             map: HashMap::new(),
@@ -131,6 +164,7 @@ impl CoordMap {
         }
         return c;
     }
+
     pub fn set(&mut self, k: &Coords, v: char) {
         self.map.insert(k.clone(), v);
     }
@@ -181,8 +215,8 @@ impl CoordMap {
         );
     }
 
-    pub fn viz(&self, empty: &char) {
-        print!("{}", self.viz_to_string(empty));
+    pub fn viz(&self, empty: char) {
+        print!("{}", self.viz_to_string(&empty));
     }
 
     pub fn viz_to_string(&self, empty: &char) -> String {
@@ -221,5 +255,58 @@ impl CoordMap {
 
     pub fn coord_exists(&self, c: &Coords) -> bool {
         self.get(c).is_some()
+    }
+
+    pub fn shortest_steps(
+        &self,
+        from: &Coords,
+        to: &Coords,
+        can_step_on: fn(Option<&char>) -> bool,
+    ) -> Option<u32> {
+        let mut best_steps_to_pos: HashMap<Coords, u32> = HashMap::new();
+
+        let mut q = vec![(from.clone(), 0)];
+
+        let mut min_to_end = 100000000;
+
+        while q.len() > 0 {
+            let (position, steps) = q.pop().unwrap();
+
+            let best = best_steps_to_pos.get(&position);
+
+            if best.is_some() && steps >= *best.unwrap() {
+                continue;
+            } else {
+                best_steps_to_pos.insert(position.clone(), steps);
+            }
+
+            if position == *to {
+                continue;
+            }
+
+            let adj = self.get_adjacent_xy(&position);
+            let possible: Vec<&Coords> = adj
+                .iter()
+                .filter(|c| {
+                    if c.x < 0 || c.y < 0 || c.x >= self.x_len || c.y >= self.y_len {
+                        return false;
+                    }
+
+                    let best = best_steps_to_pos.get(c);
+
+                    if best.is_some() && steps + 1 >= *best.unwrap() {
+                        return false;
+                    }
+                    let letter = self.get(c);
+                    return can_step_on(letter);
+                })
+                .collect();
+
+            for item in possible {
+                q.push((item.clone(), steps + 1));
+            }
+        }
+
+        best_steps_to_pos.get(to).copied()
     }
 }

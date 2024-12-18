@@ -15,7 +15,7 @@ enum Move {
 fn create_map(input: &str) -> (CoordMap, Vec<Move>) {
     let spl: Vec<&str> = input.split("\n\n").collect();
 
-    let map = CoordMap::new(&spl[0]);
+    let map = CoordMap::new_from_map(&spl[0]);
 
     (
         map,
@@ -200,7 +200,7 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     let (mut map, commands) = create_map(&inp);
 
-    map.viz(&'.');
+    map.viz('.');
 
     for mv in commands {
         let cloned_map = map.clone();

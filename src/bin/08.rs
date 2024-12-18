@@ -5,7 +5,7 @@ use advent_of_code::{CoordMap, Coords};
 advent_of_code::solution!(8);
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let map = CoordMap::new(input);
+    let map = CoordMap::new_from_map(input);
 
     let antennas: Vec<(&Coords, &char)> = map.iter().filter(|(_, v)| **v != '.').collect();
 
@@ -56,8 +56,8 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let map = CoordMap::new(input);
-    let mut vizmap = CoordMap::new(input);
+    let map = CoordMap::new_from_map(input);
+    let mut vizmap = CoordMap::new_from_map(input);
 
     let antennas: Vec<(&Coords, &char)> = map.iter().filter(|(_, v)| **v != '.').collect();
 

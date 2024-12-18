@@ -13,7 +13,7 @@ fn is_next_number(a: &char, b: &char) -> bool {
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let map = CoordMap::new(input);
+    let map = CoordMap::new_from_map(input);
 
     let count: usize = map
         .find_char('0')
@@ -60,7 +60,7 @@ struct PathBuilder {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let map = CoordMap::new(input);
+    let map = CoordMap::new_from_map(input);
 
     let count: usize = map
         .find_char('0')

@@ -59,7 +59,7 @@ struct Position {
 }
 
 fn solver(input: &str, store_visited: bool) -> (u32, Vec<Position>) {
-    let map = CoordMap::new(input);
+    let map = CoordMap::new_from_map(input);
 
     let start = map.find_char('S');
 

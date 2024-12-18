@@ -67,7 +67,7 @@ fn find_zones(map: &CoordMap) -> Vec<Zone> {
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let map = CoordMap::new(input);
+    let map = CoordMap::new_from_map(input);
     let zones = find_zones(&map);
 
     let mut acc: u32 = 0;
@@ -188,7 +188,7 @@ fn sort_borders_into_sides(
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let map = CoordMap::new(input);
+    let map = CoordMap::new_from_map(input);
     let zones = find_zones(&map);
 
     let mut acc: u32 = 0;

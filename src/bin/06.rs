@@ -88,7 +88,7 @@ fn simulate(
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let map = CoordMap::new(input);
+    let map = CoordMap::new_from_map(input);
 
     let binding = map.find_char('^');
     let start_pos = binding.get(0).unwrap();
@@ -105,7 +105,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let map = CoordMap::new(input);
+    let map = CoordMap::new_from_map(input);
     let binding = map.find_char('^');
     let start_pos = binding.get(0).unwrap();
 
