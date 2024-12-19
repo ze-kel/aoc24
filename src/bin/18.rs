@@ -55,8 +55,6 @@ pub fn part_two(input: &str) -> Option<String> {
             );
         }
 
-        map.viz('.');
-
         let v = map.shortest_steps(&Coords { x: 0, y: 0 }, &Coords { x: max, y: max }, |c| {
             c == None
         });
