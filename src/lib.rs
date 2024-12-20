@@ -46,6 +46,10 @@ impl Coords {
         let dy = (self.y - other.y) as f64;
         (dx * dx + dy * dy).sqrt()
     }
+    pub fn path_distance(&self, other: &Coords) -> u32 {
+        let d = (self.x - other.x).abs() + (self.y - other.y).abs();
+        d.try_into().unwrap()
+    }
     pub fn same(&self, other: &Coords) -> bool {
         self.x == other.x && self.y == other.y
     }
@@ -120,8 +124,8 @@ pub fn get_char_at_coord(text: &str, cord: &Coords, wrapping: bool) -> Option<ch
 pub struct CoordMap {
     map: HashMap<Coords, char>,
 
-    x_len: i32,
-    y_len: i32,
+    pub x_len: i32,
+    pub y_len: i32,
 }
 
 impl CoordMap {
@@ -257,17 +261,15 @@ impl CoordMap {
         self.get(c).is_some()
     }
 
-    pub fn shortest_steps(
+    pub fn best_to_pos(
         &self,
         from: &Coords,
         to: &Coords,
         can_step_on: fn(Option<&char>) -> bool,
-    ) -> Option<u32> {
+    ) -> HashMap<Coords, u32> {
         let mut best_steps_to_pos: HashMap<Coords, u32> = HashMap::new();
 
         let mut q = vec![(from.clone(), 0)];
-
-        let mut min_to_end = 100000000;
 
         while q.len() > 0 {
             let (position, steps) = q.pop().unwrap();
@@ -307,6 +309,16 @@ impl CoordMap {
             }
         }
 
+        best_steps_to_pos
+    }
+
+    pub fn shortest_steps(
+        &self,
+        from: &Coords,
+        to: &Coords,
+        can_step_on: fn(Option<&char>) -> bool,
+    ) -> Option<u32> {
+        let best_steps_to_pos = self.best_to_pos(from, to, can_step_on);
         best_steps_to_pos.get(to).copied()
     }
 }
