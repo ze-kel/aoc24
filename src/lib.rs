@@ -6,23 +6,6 @@ pub mod template;
 
 // Use this file to add helper functions and additional modules.
 
-fn divide_range(start: i64, end: i64, n: i64) -> Vec<(i64, i64)> {
-    if n <= 0 {
-        return vec![];
-    }
-
-    let range_size = (end - start) as f64;
-    let chunk_size = (range_size / n as f64).ceil() as i64;
-
-    (0..n)
-        .map(|i| {
-            let chunk_start = start + (i * chunk_size);
-            let chunk_end = (start + ((i + 1) * chunk_size)).min(end);
-            (chunk_start, chunk_end)
-        })
-        .collect()
-}
-
 pub fn extract_numbers(text: &str) -> Vec<f64> {
     let re = Regex::new(r"-?\d+(?:\.\d+)?").unwrap();
 
@@ -38,6 +21,13 @@ pub fn extract_numbers(text: &str) -> Vec<f64> {
 pub struct Coords {
     pub x: i32,
     pub y: i32,
+}
+
+pub enum Direction {
+    Left(i32),
+    Right(i32),
+    Down(i32),
+    Up(i32),
 }
 
 impl Coords {
@@ -59,6 +49,27 @@ impl Coords {
         } else {
             (other.y as f64 - self.y as f64) / (other.x as f64 - self.x as f64)
         }
+    }
+
+    pub fn move_direction(&self, d: Direction) -> Coords {
+        return match d {
+            Direction::Left(v) => Coords {
+                x: self.x - v,
+                y: self.y,
+            },
+            Direction::Right(v) => Coords {
+                x: self.x + v,
+                y: self.y,
+            },
+            Direction::Down(v) => Coords {
+                x: self.x,
+                y: self.y + v,
+            },
+            Direction::Up(v) => Coords {
+                x: self.x,
+                y: self.y - v,
+            },
+        };
     }
 }
 
